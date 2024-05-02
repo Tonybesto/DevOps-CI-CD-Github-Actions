@@ -20,12 +20,16 @@
 1. Instances 1. Creating VMs:
 
 • Log in to the AWS Management Console.
+
 • Navigate to the EC2 dashboard.
+
 • Click on "Launch Instance".
+
 • Choose an Amazon Machine Image (AMI), select the appropriate instance type (t2.medium), configure instance details, add storage (20GB), and configure security groups to allow SSH access.
+
 • Repeat the above steps to create the second VM. 
 
-1. Connecting to VMs via SSH(using Mobaexterm or any other Terminal):
+2. Connecting to VMs via SSH(using Mobaexterm or any other Terminal):
 
 • Use an SSH client like mobaxterm (for Windows) or Terminal (for macOS/Linux) to connect to the VMs using their public IP addresses and SSH key pair. 
 
@@ -72,6 +76,7 @@ sudo ./init_master.sh
 6. On Worker Node:
    
 • Copy the kubeadm join command provided in the output of kubeadm init from the master node.
+
 • Execute the command on the worker node as the root user. 
 
 7. Verification:
