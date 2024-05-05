@@ -209,3 +209,236 @@ This command will download the sonarqube:lts-community Docker image from Docker 
 3. Access SonarQube by opening a web browser and navigating to http://VmIP:9000. 
    
   This will start the SonarQube server, and you should be able to access it using the provided URL. If you're running Docker on a remote server or a different port, replace localhost with the appropriate hostname or IP address and adjust the port accordingly.
+
+
+
+### Setting Up GitHub Actions Self-hosted Runner on VM
+
+1. Provisioning VM:
+   
+• Log in to your cloud provider (e.g., AWS, Azure, GCP).
+
+• Navigate to the dashboard or console for managing virtual machines.
+
+• Click on "Launch Instance" or similar to create a new virtual machine.
+
+• Choose an appropriate instance type (t2.large), configure instance details (8GB RAM, 20GB storage), networking, and security settings.
+
+• Complete the setup and wait for the VM to be provisioned. 
+
+2. Accessing VM:
+   
+• Once the VM is provisioned, obtain its public IP address or DNS name.
+
+• Use SSH (for Linux) or RDP (for Windows) to connect to the VM.
+
+3. Setting Up Self-hosted Runner:
+   
+• Open a terminal or command prompt on the VM. 
+
+4. Registering Runner:
+
+• Go to your GitHub repository where you want to set up the self-hosted runner.
+
+• Navigate to the "Settings" tab. 
+
+5. Accessing Runner Configuration:
+
+• On the left sidebar, click on "Actions".
+
+• Click on "Runners". 
+
+6. Adding New Runner:
+
+• Click on "New self-hosted runner". 
+
+7. Selecting Machine Type:
+   
+• Choose the appropriate machine type (Linux, macOS, Windows) based on your VM's operating system. 
+
+8. Executing Commands:
+
+• Follow the instructions provided by GitHub to download and configure the runner. These typically involve running a set of commands. 
+
+9. Starting the Runner:
+
+• After configuring the runner, start it by running the command provided.
+
+
+
+### PHASE-3 | CICD 
+
+#### Java CI Pipeline with GitHub Actions 
+
+This document outlines the steps to create a continuous integration (CI) pipeline using GitHub Actions for a Java project built with Maven. The pipeline includes steps for building the project, running security scans, performing code quality analysis with SonarQube, building and scanning Docker images, and deploying to Kubernetes. Secrets are used to securely store sensitive information such as authentication tokens and configuration files. 
+
+**Pipeline Overview:**
+
+1. Java Build and Package:
+   
+o Sets up JDK 17 using Temurin distribution.
+
+o Builds the Java project using Maven.
+
+o Uploads the generated JAR artifact as a GitHub Action artifact.
+
+2. Security Scans:
+   
+o Performs file system scan using Trivy.
+
+o Runs SonarQube scan for code quality analysis.
+
+3. Docker Build and Scan:
+   
+o Sets up QEMU and Docker Buildx.
+
+o Builds Docker image for the Java application.
+
+o Scans Docker image using Trivy.
+
+o Logs in to Docker Hub using provided credentials.
+
+o Pushes the Docker image to Docker Hub.
+
+4. Kubernetes Deployment:
+   
+o Uses Kubectl Action to interact with Kubernetes cluster.
+
+o Applies deployment and service configuration from deployment-service.yaml file to deploy the application to Kubernetes namespace webapps.
+
+
+
+Pipeline Configuration:
+
+```
+name: CICD By Tony
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17' 
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn package
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: my-artifact
+          path: target/*.jar
+
+      - name: Trivy FS Scan
+        run: |
+          trivy fs --format table -o trivy-fs-report.html .
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx 
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image
+        run: |
+          docker build -t adijaiswal/boardgame:latest .
+
+      - name: Trivy Image Scan
+        run: |
+          trivy image --format table -o trivy-image-report.html adijaiswal/board:latest
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}  
+
+      - name: Push Docker Image
+        run: |
+          docker push adijaiswal/boardgame:latest
+
+```
+
+#### Secrets Configuration: 
+
+Ensure that the following secrets are configured in your GitHub repository:
+
+• SONAR_TOKEN: Token for authenticating SonarQube scan.
+
+• SONAR_HOST_URL: URL of your SonarQube instance.
+
+• DOCKERHUB_USERNAME: Username for Docker Hub authentication.
+
+• DOCKERHUB_TOKEN: Token for Docker Hub authentication.
+
+• KUBE_CONFIG: Base64 encoded Kubernetes configuration file (kubeconfig) for accessing the Kubernetes cluster.
+
+
+
+### PHASE-4 | Monitoring 
+
+Downloading Prometheus Components and Grafana Below are the steps to download Prometheus components (Node Exporter, Blackbox Exporter, and Prometheus itself) from the official Prometheus website and Grafana from the Grafana website: 
+
+**1. Downloading Node Exporter:**
+   
+• Go to the Prometheus download page: [Prometheus Download Page](https://prometheus.io/download/).
+
+• Scroll down to the "Node Exporter" section.
+
+• Choose the appropriate version for your operating system.
+
+• Click on the download link to download the Node Exporter binary. 
+
+**2. Downloading Blackbox Exporter:**
+
+• Go to the Prometheus download page: [Prometheus Download Page](https://prometheus.io/download/).
+
+• Scroll down to the "Blackbox Exporter" section.
+
+• Choose the appropriate version for your operating system.
+
+• Click on the download link to download the Blackbox Exporter binary. 
+
+**3. Downloading Prometheus:**
+
+• Go to the Prometheus download page: [Prometheus Download Page](https://prometheus.io/download/).
+
+• Scroll down to the "Prometheus" section.
+
+• Choose the appropriate version for your operating system.
+
+• Click on the download link to download the Prometheus binary. 
+
+**4. Downloading Grafana:**
+
+• Go to the Grafana download page: [Grafana Download Page](https://grafana.com/grafana/download).
+
+• Choose the appropriate version for your operating system.
+
+• Click on the download link to download the Grafana binary.
