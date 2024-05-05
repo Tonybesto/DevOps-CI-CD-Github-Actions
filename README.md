@@ -147,22 +147,22 @@ verbs:
   - delete
 ```
 
-Bind the role to service account
+#### Bind the role to service account
 
 ```
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-name: app-rolebinding
-namespace: webapps
+  name: app-rolebinding 
+  namespace: webapps
 roleRef:
-apiGroup: rbac.authorization.k8s.io
-kind: Role
-name: app-role
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: app-role
 subjects:
 - namespace: webapps
-kind: ServiceAccount
-name: jenkins 
+  kind: ServiceAccount
+  name: jenkins
 ```
 Generate token using service account in the namespace
 
