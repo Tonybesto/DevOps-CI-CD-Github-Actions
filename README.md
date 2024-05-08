@@ -37,9 +37,9 @@
 ```   
 sudo apt update && sudo apt upgrade -y 
 ```
-4. Create and Execute Script on Both Master & Worker VM:
+4. Create and Execute Script on Both **Master & Worker VM**:
 
-Script (setup.sh):
+Script (docker.sh):
 ```
 sudo apt install docker.io -y
 sudo chmod 666 /var/run/docker.sock
@@ -50,11 +50,15 @@ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 sudo apt update
 sudo apt install -y kubeadm=1.28.1-1.1 kubelet=1.28.1-1.1 kubectl=1.28.1-1.1
 ```
+
 Execution:
 ```
-sudo chmod +x setup.sh
-sudo ./setup.sh
+sudo chmod +x docker.sh
+sudo ./docker.sh
 ```
+
+![alt text](<Images/Docker and k8s install.png>)
+
 
 5. On Master Node: 
  
@@ -72,12 +76,20 @@ Execution:
 sudo chmod +x init_master.sh
 sudo ./init_master.sh
 ```
+![alt text](Images/init_master.png)
+
 
 6. On Worker Node:
    
 • Copy the kubeadm join command provided in the output of kubeadm init from the master node.
 
+
+![alt text](<Images/kubeadm join command.png>)
+
 • Execute the command on the worker node as the root user. 
+
+![alt text](<Images/worker-node join.png>)
+
 
 7. Verification:
 
@@ -87,6 +99,8 @@ sudo ./init_master.sh
 kubectl get nodes
 kubectl get pods --all-namespaces
 ```
+![alt text](<Images/kubectl get nodes.png>)
+
 • Ensure all nodes are in the Ready state and pods are running.
 
 
