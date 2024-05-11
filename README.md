@@ -220,9 +220,13 @@ docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
 ```
 This command will download the sonarqube:lts-community Docker image from Docker Hub if it's not already available locally. Then, it will create a container named "sonar" from this image, running it in detached mode (-d flag) and mapping port 9000 on the host machine to port 9000 in the container (-p 9000:9000 flag).
 
+![alt text](Images/sonar-docker.png)
+
 3. Access SonarQube by opening a web browser and navigating to http://VmIP:9000. 
    
   This will start the SonarQube server, and you should be able to access it using the provided URL. If you're running Docker on a remote server or a different port, replace localhost with the appropriate hostname or IP address and adjust the port accordingly.
+
+![alt text](Images/sonar-page.png)
 
 
 
@@ -254,7 +258,9 @@ This command will download the sonarqube:lts-community Docker image from Docker 
 
 • Go to your GitHub repository where you want to set up the self-hosted runner.
 
-• Navigate to the "Settings" tab. 
+• Navigate to the "Settings" tab.
+
+![alt text](Images/settings.png)
 
 5. Accessing Runner Configuration:
 
@@ -262,21 +268,40 @@ This command will download the sonarqube:lts-community Docker image from Docker 
 
 • Click on "Runners". 
 
+![alt text](Images/runners.png)
+
 6. Adding New Runner:
 
 • Click on "New self-hosted runner". 
+
+![alt text](<Images/new-self hosted runner.png>)
 
 7. Selecting Machine Type:
    
 • Choose the appropriate machine type (Linux, macOS, Windows) based on your VM's operating system. 
 
+![alt text](Images/linux-runner.png)
+
 8. Executing Commands:
 
 • Follow the instructions provided by GitHub to download and configure the runner. These typically involve running a set of commands. 
 
+![alt text](<Images/configure runner.png>)
+
+![alt text](Images/offline-runner.png)
+
 9. Starting the Runner:
 
 • After configuring the runner, start it by running the command provided.
+
+```
+./run.sh
+```
+![alt text](Images/run-sh.png)
+
+![alt text](Images/online-runner.png)
+
+
 
 
 
