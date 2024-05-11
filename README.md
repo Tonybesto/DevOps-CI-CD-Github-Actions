@@ -469,6 +469,17 @@ Ensure that the following secrets are configured in your GitHub repository:
 
 • KUBE_CONFIG: Base64 encoded Kubernetes configuration file (kubeconfig) for accessing the Kubernetes cluster.
 
+Sonarqube check
+
+![alt text](<Images/code smells and bug.png>)
+
+Kubernetes deployment status after CI/CD build
+
+![alt text](<Images/status of deployment.png>)
+
+Use the Public IP address of the worker node with the specified port number to access your application
+
+![alt text](<Images/deployed app.png>)
 
 
 ### PHASE-4 | Monitoring 
