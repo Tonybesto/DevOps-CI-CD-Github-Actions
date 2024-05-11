@@ -182,6 +182,25 @@ Generate token using service account in the namespace
 
 [create token](https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#:~:text=To%20create%20a%20non%2Dexpiring,with%20that%20generated%20token%20data.)
 
+### SetUp Trivy
+
+* create a `trivy.sh` file 
+
+* add the content below into the trivy script.
+
+```
+sudo apt-get install wget apt-transport-https gnupg lsb-release
+
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+
+echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+
+sudo apt-get update
+
+sudo apt-get install trivy -y
+
+```
+
 
 
 ### SetUp SonarQube
