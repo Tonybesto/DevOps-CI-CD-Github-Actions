@@ -110,56 +110,60 @@ Create Service Account, Role & Assign that role, And create a secret for Service
 ---
 apiVersion: v1
 kind: ServiceAccount
-metadata: null
-name: jenkins
-namespace: webapps Create Role
+metadata:
+  name: git-actions-sa
+  namespace: webapps
+```
+![alt text](<Images/create ns an sa.png>)
 
----
+Create Role
+```
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
-metadata: null
-name: app-role
-namespace: webapps
+metadata:
+  name: app-role
+  namespace: webapps
 rules:
-  - apiGroups: null
-  - ""
-  - apps
-  - autoscaling
-  - batch
-  - extensions
-  - policy
-  - rbac.authorization.k8s.io
-resources:
-  - pods
-  - componentstatuses
-  - configmaps
-  - daemonsets
-  - deployments
-  - events
-  - endpoints
-  - horizontalpodautoscalers
-  - ingress
-  - jobs
-  - limitranges
-  - namespaces
-  - nodes
-  - pods
-  - persistentvolumes
-  - persistentvolumeclaims
-  - resourcequotas
-  - replicasets
-  - replicationcontrollers
-  - serviceaccounts
-  - services
-verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - patch
-  - delete
+- apiGroups:
+    - ""
+    - apps
+    - autoscaling
+    - batch
+    - extensions
+    - policy
+    - rbac.authorization.k8s.io
+  resources:
+    - pods
+    - componentstatuses
+    - configmaps
+    - daemonsets
+    - deployments
+    - events
+    - endpoints
+    - horizontalpodautoscalers
+    - ingress
+    - jobs
+    - limitranges
+    - namespaces
+    - nodes
+    - pods
+    - persistentvolumes
+    - persistentvolumeclaims
+    - resourcequotas
+    - replicasets
+    - replicationcontrollers
+    - serviceaccounts
+    - services
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
 ```
+![alt text](<Images/role created.png>)
 
 #### Bind the role to service account
 
@@ -176,11 +180,19 @@ roleRef:
 subjects:
 - namespace: webapps
   kind: ServiceAccount
-  name: jenkins
+  name: git-actions-sa
 ```
+
+![alt text](Images/role-binding.png)
+
+
 Generate token using service account in the namespace
 
 [create token](https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#:~:text=To%20create%20a%20non%2Dexpiring,with%20that%20generated%20token%20data.)
+
+![alt text](<Images/create secret.png>)
+
+![alt text](<Images/applied secret.png>)
 
 ### SetUp Trivy
 
