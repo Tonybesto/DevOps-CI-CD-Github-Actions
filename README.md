@@ -381,77 +381,83 @@ o Applies deployment and service configuration from deployment-service.yaml file
 Pipeline Configuration:
 
 ```
-name: CICD By Tony
+name: Java CI with Maven
+
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "boy" ]
 
 jobs:
   build:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    - name: Build with Maven and upload
+      run: mvn  package
+    - uses: actions/upload-artifact@v4.3.3
+      with:
+        name: my-artifact
+        path: target/*.jar
+    - name: Trivy FS Scan
+      run: |
+        trivy fs --format table -o trivy-fs-report.html .
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17' 
-          distribution: 'temurin'
-          cache: maven
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    - name: install jq
+      run: sudo apt update && sudo apt install jq -y
 
-      - name: Build with Maven
-        run: mvn package
+  #check the quality gate status
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: my-artifact
-          path: target/*.jar
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+      timeout-minutes: 5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
 
-      - name: Trivy FS Scan
-        run: |
-          trivy fs --format table -o trivy-fs-report.html .
+    - name: Set up Docker Buildx 
+      uses: docker/setup-buildx-action@v3
 
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    - name: Build Docker Image
+      run: |
+          docker build -t tony06/boardgame:latest .
+      
+    - name: Trivy Image Scan
+      run: |
+        trivy image --format table -o trivy-image-report.html tony06/boardgame:latest
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}  
 
-      - name: SonarQube Quality Gate check
-        id: sonarqube-quality-gate-check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    - name: Push Docker Image
+      run: |
+         docker push tony06/boardgame:latest
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx 
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker Image
-        run: |
-          docker build -t adijaiswal/boardgame:latest .
-
-      - name: Trivy Image Scan
-        run: |
-          trivy image --format table -o trivy-image-report.html adijaiswal/board:latest
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}  
-
-      - name: Push Docker Image
-        run: |
-          docker push adijaiswal/boardgame:latest
+    - name: Kubectl Actions
+      uses: tale/kubectl-action@v1
+      with: 
+        base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+    - run: |
+        kubectl apply -f deployment-service.yml -n webapps
+        kubectl get svc -n webapps
 
 ```
 
